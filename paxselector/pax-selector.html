@@ -1,0 +1,1126 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Pax selector test</title>
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-vue@1.3.0/dist/bootstrap-vue.css" />
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.0.0-beta.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="jquery-ui.min.css" />
+    <link rel="stylesheet" href="jq-ui-bootstrap.css" />
+    <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.9/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+    <script src="https://unpkg.com/babel-polyfill@6.26.0/dist/polyfill.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.3/moment.min.js"></script>
+
+    <script src="typeahead-and-mbs.js"></script>
+    <script src="jquery-ui.min.js"></script>
+    <style>
+        .dropdown_passengers_plus_minus {
+            z-index: 1000;
+            display: none;
+            padding: 10px;
+            min-width: 300px;
+            background-color: #fff;
+            position: absolute;
+            left: 1px;
+            border: 1px solid #7557b6;
+            font-weight: 500;
+            color: black;
+            margin-left: 15px;
+        }
+
+            .dropdown_passengers_plus_minus .m-checkbox {
+                color: black;
+            }
+
+            .dropdown_passengers_plus_minus .additional {
+                color: rgba(158, 158, 158, 0.75);
+                font-size: 12px;
+            }
+
+        .m-input-plus-minus {
+            width: 100px;
+        }
+
+            .m-input-plus-minus input {
+                padding: 5px !important;
+                text-align: center !important;
+            }
+
+        .wrapper_plus_minus {
+            display: none;
+        }
+
+        .wrap_filters_tickets {
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: center;
+        }
+
+        .col_with_filter {
+            width: 278px;
+        }
+
+            .col_with_filter.right:after {
+                content: '';
+                height: 100%;
+                order: 0;
+            }
+
+            .col_with_filter .card-block {
+                box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.15);
+            }
+
+            .col_with_filter .card-header {
+                background-color: #fff;
+            }
+
+        .filter_header {
+            font-size: 16px;
+            font-weight: 600;
+            color: #4a4a4a;
+            padding: 10px 15px;
+            line-height: 26px;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            position: relative;
+            border-bottom: 1px solid #eff1f4;
+        }
+
+            .filter_header:before {
+                display: inline-block;
+                position: relative;
+                top: 4px;
+                height: 0;
+                width: 0;
+                content: "";
+                border: 5px solid transparent;
+                border-top-color: #4a4a4a;
+                transition: -webkit-transform .2s ease;
+                -o-transition: -o-transform .2s ease;
+                transition: transform .2s ease;
+                transition: transform .2s ease,-webkit-transform .2s ease,-o-transform .2s ease;
+                -webkit-transform-origin: 50% 25%;
+                -o-transform-origin: 50% 25%;
+                transform-origin: 50% 25%;
+            }
+
+            .filter_header.opened:before {
+                transform: rotate(-90deg);
+                transform-origin: 25% 25%;
+            }
+
+        .filter_box {
+            display: none;
+            padding: 15px;
+        }
+
+        .ticket {
+            display: flex;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+        }
+
+        .ticket__buy-col {
+            background: #fff;
+            width: 200px;
+            border-right: 1px solid #e4e7e8;
+            vertical-align: top;
+            border-radius: 5px 0 0 5px;
+            position: relative;
+        }
+
+            .ticket__buy-col .nav.nav-pills .nav-link {
+                color: #9ab0b9 !important;
+            }
+
+            .ticket__buy-col .nav-pills {
+                background-color: rgba(158, 158, 158, 0.19) !important;
+                border-radius: 0 !important;
+                padding: 0px !important;
+                text-align: center;
+                color: #9ab0b9 !important;
+                margin-bottom: 0px;
+            }
+
+                .ticket__buy-col .nav-pills .fa {
+                    color: #9ab0b9 !important;
+                }
+
+            .ticket__buy-col .nav-link {
+                padding: 10px 0 !important;
+            }
+
+                .ticket__buy-col .nav-link.active {
+                    background-color: #fff !important;
+                    color: #9ab0b9 !important;
+                }
+
+                    .ticket__buy-col .nav-link.active .fa {
+                        color: #9ab0b9 !important;
+                    }
+
+            .ticket__buy-col .tab-pane {
+                padding: 10px 15px;
+            }
+
+        .ticket__hr-dashed {
+            border-bottom: 1px dashed rgba(158, 158, 158, 0.6);
+            margin-top: 10px;
+        }
+
+        .ticket__seats {
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .ticket__button_pay {
+            position: relative;
+            display: block;
+            margin-bottom: 0px;
+            width: 100%;
+            height: 48px;
+            border-radius: 5px;
+            font-size: 1rem;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        .ticket__button_pay--danger {
+            background-color: #ff000dcc;
+            box-shadow: 0 1px 0 0 red, 0 2px 1px 0 rgba(0, 0, 0, 0.1);
+        }
+
+            .ticket__button_pay--danger:after {
+                font-family: "FontAwesome";
+                content: "\f071";
+                position: absolute;
+                right: 15px;
+                top: 15px;
+                color: #fff;
+                font-size: 20px;
+            }
+
+        .ticket__button_pay--success {
+            background-color: green;
+            box-shadow: 0 1px 0 0 green, 0 2px 1px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .ticket__button_pay_provider {
+            margin-top: 5px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .ticket .proposals {
+            display: flex;
+            flex-flow: column nowrap;
+            max-height: 160px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .ticket .proposals__wrapper_proposals {
+            flex: 1 0 auto;
+            max-height: 100px;
+            overflow: hidden;
+        }
+
+        .ticket .proposals__btn_all {
+            flex: 0 0 auto;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+
+        .ticket .proposals .link_proposals {
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+            .ticket .proposals .link_proposals:hover {
+                text-decoration: none;
+            }
+
+        .ticket .proposals .link_proposals__company {
+            display: inline-block;
+            width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: top;
+        }
+
+        .ticket .proposals .link_proposals__price {
+            margin-left: 18px;
+            display: inline-block;
+            vertical-align: top;
+            max-width: 80px;
+            overflow: hidden;
+        }
+
+        .ticket__content {
+            background: #fff;
+            width: 600px;
+            padding-top: 15px;
+            padding-bottom: 10px;
+            padding-right: 20px;
+            position: relative;
+            vertical-align: top;
+            border-radius: 0 5px 5px 0;
+        }
+
+        .ticket__wrapper_badges {
+            word-spacing: 0px;
+            text-transform: uppercase;
+            float: right;
+            position: relative;
+            top: -15px;
+            right: -5px;
+        }
+
+            .ticket__wrapper_badges .badge {
+                vertical-align: top;
+            }
+
+                .ticket__wrapper_badges .badge.badge-success {
+                    background-color: green;
+                }
+
+                .ticket__wrapper_badges .badge span {
+                    position: relative;
+                    top: -2px;
+                }
+
+            .ticket__wrapper_badges .fa {
+                margin-right: 3px;
+                position: relative;
+                top: -1px;
+            }
+
+        .ticket__badge_violation_tp {
+            color: #fff;
+            background-color: #ff000dcc;
+            cursor: pointer;
+        }
+
+        .ticket .violation_tp ul {
+            list-style: none;
+            padding-left: 0px;
+            width: 500px;
+        }
+
+            .ticket .violation_tp ul b {
+                width: calc(100% - 2px);
+                display: inline-block;
+                background-color: #ff000dcc !important;
+                color: #fff !important;
+                padding: 5px;
+            }
+
+            .ticket .violation_tp ul span {
+                width: calc(100% - 2px);
+                display: inline-block;
+                padding: 5px;
+            }
+
+        .ticket .violation_tp .popover {
+            max-width: 500px !important;
+            padding: 0px !important;
+            border: 2px solid #ff000dcc;
+        }
+
+        .ticket .violation_tp .popover-body {
+            padding: 0px !important;
+        }
+
+        .ticket__corner {
+            position: absolute;
+            top: 0;
+            right: 0px;
+            height: 100%;
+            width: 20px;
+            background-color: #ededed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .ticket__corner .fa {
+                color: #607D8B !important;
+            }
+
+            .ticket__corner .fa-caret-up {
+                display: none;
+            }
+
+        .ticket__content-header {
+            padding: 5px 10px;
+        }
+
+        .ticket__logo-avia {
+            width: 100px;
+            height: 40px;
+        }
+
+        .ticket__flight {
+            border-bottom: 1px solid dashed;
+            padding: 10px 15px;
+        }
+
+            .ticket__flight:first-child {
+                border-bottom: none;
+            }
+
+        .ticket__flight-time {
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .ticket__flight-additional-info {
+            font-size: 14px;
+            line-height: 16px;
+            color: #607D8B;
+            font-weight: 400;
+        }
+
+        .ticket__number_flight {
+            font-weight: 500;
+        }
+
+        .ticket__flight_img__start {
+            position: absolute;
+            left: 0;
+            width: 25px;
+            height: 15px;
+            background-size: cover;
+            background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAangAAGp4B8NQjJQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAALhSURBVGiB7dlLqFVVHMfxz/WqlC80ulTiMxAkbyhJNKiQtHCgjgRBEEdSoKQoNezipNuFTBIKFBqVDYLAgQNBKRDEx0AFRUFFESQamEG+ysd1O1jn4L7HfbZnvzxd2F9Yk3P2/q/fb+21/+u/1qamphJ6uy0gA2PxKqbhNqLuysnGQnyF03gkiI9wFyewCRPzBh8rjMrUwjLbx1+D454IT2uXsShLB29gH+7FgtzBIXyCVwoamIJtuNqhgXi7kKWjvc8I9hCHsRkzMsSdjW/wTw4DkTDlNmcx0osB/Nth8GP4DHPbxHsHv+BBTgMRzuP9LCbizMPBDjoZxn580DIYq3GkgPhIGMwBjM9rIs4qyfP5bwxhTuzal7Adf5ZgYAgvl2EgzoSGwHsNU1swOfb/fOzBrYIGHjTizCzbQCvzjHzMi/Ez7hc0MCy8R/1VG4gzDutxsqD4SFjwdgkZrWOGcAPnsC6HgYnYiIslGPgPu7XPdKmcagn2A17s4L7pGBQGoaiBZluex0CTDQkBL2i/7L8rpNXhEg1EwrpTiAn4KyHwbXyMnkZbgd9KFh9va4sagS9TOriEaxUaiHBFKBYLM93IYrDMdlMoudOu+bQME01+LNnAZWwVqtrBlOuuC9O7NPqN3LzkafcbA7K4JfaBlHu+KNNEk99zGrgmjPqcNnH/aHPfHfRVYWRlBvE38RM+wpiUmH0pMb6rwkSTr4VNUtK0OYkdWKbzEvrDhFhRo4/XyxKdlPI+x/dYILyEd4V15oxQRmdlYZvffxXS7qghaYv8CG92U1QeznrayIGuKsrBC5L35Eu7KSoPb3naxPEqOkpLm2WQVEHvrLjPSthl5NO4pKLz5qqfSGtm2insY0Yd8d3jCWFfP+qY5YmJoyqqqZ4HbwtHmluFNFxTU1NTU1NT0yE9eE/4RvJal7Xk5Tq+7RFOMnJ9WPkf8XCMks9du0Rvr/A1dgkmdVdLbm5h+2PWRRN0nZ17cQAAAABJRU5ErkJggg==");
+            left: -3px;
+            padding-left: 20px;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 500;
+            text-indent: 10px;
+        }
+
+        .ticket__flight_img__stop {
+            position: absolute;
+            width: 25px;
+            height: 18px;
+            background-size: cover;
+            background-image: url(data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjY0cHgiIGhlaWdodD0iNjRweCIgdmlld0JveD0iMCAwIDM2MS4yMjggMzYxLjIyOCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMzYxLjIyOCAzNjEuMjI4OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxnPgoJPGc+CgkJPGc+CgkJCTxwYXRoIGQ9Ik0xMi4zNDgsMTMyLjA0MWMtMC4wMTItMC4wMDEtMC4wMjMtMC4wMDMtMC4wMzYtMC4wMDVjLTQuNDc4LTAuNzM3LTguNzc2LDIuMDg2LTkuODczLDYuNDk0ICAgICBjLTEuMTAyLDQuNDE5LDEuMzg0LDguOTQxLDUuNzA2LDEwLjM3OWwxMjEuODUsNDAuNTQybC00MC41MzMsMTYuMTQxYy0yLjk0NCwxLjE3My00Ljc0Niw0LjE2NS00LjQwNCw3LjMxNCAgICAgYzAuMzQsMy4xNTEsMi43NDEsNS42ODgsNS44Nyw2LjIwM2wyNi41Nyw0LjM3M2MwLjc2MywwLjEyNSwxLjU0MSwwLjEyNSwyLjMwNC0wLjAwMmwxMDAuOTc1LTE2Ljc5NWw5Ny4yNTQsMTUuODQyICAgICBjMzcuMTc2LDUuNTQyLDQyLjMyMS03LjcyOSw0My4wMTItMTEuOTMxYzAuNTM3LTMuMjU2LDAuMTY2LTguNDM4LTQuNjQxLTE0LjYyNmMtNC44NzUtNi4yNzktMTMuMjY5LTEyLjM0OC0yNS42NTItMTguNTUzICAgICBjLTQuMTM1LTIuMDcyLTYuMTA0LTMuNjMyLTguMTg4LTUuMjg0Yy03LjMzNC01LjgwNy0xMi43OTEtOS4xMDYtNDcuODA5LTE0Ljg3MUw4My4yMDYsMTI1LjczNkw1MC40OTIsNTcuOTU4ICAgICBjLTEuMjM0LTIuNTU2LTMuNjM0LTQuMzUxLTYuNDM2LTQuODEybC0xMi41MTctMi4wNjFjLTIuNTc3LTAuNDI0LTUuMjA4LDAuMzI5LTcuMTY4LDIuMDUzICAgICBjLTEuOTYyLDEuNzI0LTMuMDQ4LDQuMjM2LTIuOTU4LDYuODQ1bDIuNTI1LDc0LjAxM0wxMi4zNDgsMTMyLjA0MXoiIGZpbGw9IiMwMDAwMDAiLz4KCQkJPHBhdGggZD0iTTM0Mi43MDcsMjc3LjA1MUgxNi42MDRDNy40MzQsMjc3LjA1MSwwLDI4NC40ODQsMCwyOTMuNjU0czcuNDM0LDE2LjYwNCwxNi42MDQsMTYuNjA0aDMyNi4xMDMgICAgIGM5LjE3LDAsMTYuNjA1LTcuNDM2LDE2LjYwNS0xNi42MDRTMzUxLjg3NywyNzcuMDUxLDM0Mi43MDcsMjc3LjA1MXoiIGZpbGw9IiMwMDAwMDAiLz4KCQk8L2c+Cgk8L2c+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPC9zdmc+Cg==);
+            right: 0;
+        }
+
+        .ticket__route-path {
+            z-index: 10;
+        }
+
+        .ticket__flight_dot {
+            position: relative;
+            border: 2px solid rgba(158, 158, 158, 0.5);
+            border-radius: 100%;
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            display: inline-block;
+        }
+
+            .ticket__flight_dot:hover:before {
+                content: "";
+                display: block;
+                position: absolute;
+                width: 3px;
+                height: 3px;
+                color: black;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: black;
+                border-radius: 100%;
+                transition-duration: .5s;
+                transition-timing-function: ease-in-out;
+            }
+
+        .ticket__flight_dot--refueling {
+            box-shadow: 0 0 0 2px #52b0f8;
+        }
+
+        .ticket__wrap-flight-segments {
+            display: flex;
+            justify-content: space-around;
+            padding-left: 10px;
+            padding-right: 10px;
+            font-weight: 600;
+            font-size: 10px;
+        }
+
+        .ticket__segment-route {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .ticket__segment-flight {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .ticket__flight_airport {
+            font-weight: 500;
+        }
+
+        .ticket__timeline {
+            position: relative;
+            width: 320px;
+            margin: 0 15px;
+        }
+
+        .ticket__flight_duration {
+            font-weight: 500;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .ticket__flight_hr {
+            border-top: 1px solid rgba(158, 158, 158, 0.5);
+            margin-top: 47px;
+            margin-bottom: 30px;
+            position: absolute;
+            width: calc(100% - 20px);
+            left: 10px;
+            top: 0px;
+        }
+
+        .ticket__details {
+            position: relative;
+            display: none;
+        }
+
+        .ticket__details_baggage {
+            position: relative;
+            text-align: center;
+            padding: 10px 0px;
+            border-top: 1px solid #e4e7e8;
+            border-bottom: 1px solid #e4e7e8;
+        }
+
+            .ticket__details_baggage .shopping-bag {
+                display: inline-block;
+                width: 49%;
+                text-overflow: ellipsis;
+            }
+
+                .ticket__details_baggage .shopping-bag:after {
+                    content: "";
+                    width: 1px;
+                    background: #e4e7e8;
+                    position: absolute;
+                    left: calc(50% - 10px);
+                    top: 0;
+                    bottom: 0;
+                }
+
+            .ticket__details_baggage .suitcase {
+                display: inline-block;
+                width: 50%;
+                text-overflow: ellipsis;
+            }
+
+        .services_on_ticket__item {
+            color: #2d2d3a;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            text-align: center;
+            display: inline-block;
+            background: 50% 50% no-repeat;
+            padding: 0px !important;
+            vertical-align: top;
+        }
+
+            .services_on_ticket__item .fa {
+                vertical-align: bottom;
+                line-height: 34px;
+                color: #fff;
+                margin-right: 0px;
+            }
+
+        .services_on_ticket__item--success {
+            background-color: green;
+        }
+
+        .services_on_ticket__item--warning {
+            background-color: #FFC107;
+        }
+
+        .services_on_ticket__item--danger {
+            background-color: #ff000dcc;
+        }
+
+        .services_on_ticket__item--square {
+            border-radius: 7px;
+            margin-left: 30px;
+        }
+
+        .services_on_ticket__item--info {
+            border: 2px solid #52b0f8 !important;
+        }
+
+            .services_on_ticket__item--info:hover {
+                background-color: #52b0f8 !important;
+            }
+
+                .services_on_ticket__item--info:hover .fa {
+                    color: #fff !important;
+                }
+
+            .services_on_ticket__item--info .fa {
+                color: #52b0f8 !important;
+            }
+
+        .flight-leg {
+            position: relative;
+            padding: 15px 15px 15px 70px;
+        }
+
+        .flight-leg__airline-logo {
+            position: absolute;
+            top: 20px;
+            left: 10px;
+            background-size: contain;
+            width: 60px;
+            height: 40px;
+            background-repeat: no-repeat;
+        }
+
+            .flight-leg__airline-logo.ellinair {
+                background-image: url("/Img/ellinair.png");
+            }
+
+        .flight-leg__route {
+            margin-bottom: 10px;
+        }
+
+        .flight-leg__flight-time {
+            width: 40px;
+            margin-right: 7px;
+            line-height: 21px;
+        }
+
+        .flight-leg__flight-city {
+            width: 268px;
+            margin-right: 7px;
+            line-height: 21px;
+        }
+
+            .flight-leg__flight-city .title {
+                font-weight: bold;
+            }
+
+        .flight-leg__flight-date {
+            margin-right: 17px;
+        }
+
+        .flight-leg__totale-time {
+            line-height: 44px;
+        }
+
+        .flight-leg__footer .badge {
+            margin-right: 5px;
+        }
+
+        .flight-stop {
+            padding: 15px 20px 15px 70px;
+            color: red;
+        }
+
+        .flight-stop__alert {
+            padding: 5px 10px !important;
+            background-color: #f6f9fa;
+            color: black;
+            border: none;
+            font-weight: 600;
+        }
+
+        .gutters2px > .col, .gutters2px > [class*="col-"] {
+            padding-right: 2px;
+            padding-left: 2px;
+        }
+
+        .calendar_mobiscroll_inline {
+            display: none;
+            width: 578px;
+            position: absolute;
+            left: -1px;
+            z-index: 50;
+            border: 1px solid #7557b6;
+            box-sizing: border-box;
+            padding: 10px;
+            background-color: #fff;
+        }
+
+        .calendar_mobiscroll_inline__plus_minus_icon {
+            display: inline-block;
+        }
+
+        .calendar_mobiscroll_inline .fa {
+            color: black;
+        }
+
+        .calendar_mobiscroll_inline .btn {
+            margin-bottom: 0px !important;
+        }
+
+        .calendar_mobiscroll_inline__calendar {
+            width: 556px;
+            height: 340px;
+        }
+
+        .calendar_mobiscroll_inline__time_specification {
+            position: relative;
+            color: #000;
+            background-color: #fff;
+        }
+
+            .calendar_mobiscroll_inline__time_specification .custom-checkbox {
+                margin-left: 10px !important;
+                margin-right: 20px !important;
+                padding-left: 25px;
+            }
+
+        .calendar_mobiscroll_inline .wrapper_form-inline {
+            display: none;
+            position: absolute;
+            left: 200px;
+            top: -8px;
+            z-index: 20;
+        }
+
+        .calendar_mobiscroll_inline .custom-control-description {
+            margin-left: 10px;
+        }
+
+        .wrapper_btn {
+            background-color: white;
+            padding: 10px 15px;
+        }
+
+            .wrapper_btn .btn {
+                display: block;
+                font-size: 14px;
+                line-height: 24px;
+                letter-spacing: 0.1px;
+                text-decoration: none;
+                clear: both;
+                text-align: center;
+                background: #fff;
+                border: 1px solid #f8e8cc;
+                color: #ff8c17;
+                -o-transition: all .3s;
+                transition: all .3s;
+                background-color: #fff4e1;
+                border-radius: 5px;
+            }
+
+                .wrapper_btn .btn:hover {
+                    background: #ff8c17;
+                    color: #fff;
+                    text-decoration: none;
+                }
+
+        .range_time {
+            padding: 5px 10px;
+            position: relative;
+        }
+
+            .range_time .irs {
+                height: 25px;
+            }
+
+            .range_time .irs-line {
+                top: 5px;
+                height: 2px;
+            }
+
+            .range_time .irs-slider {
+                z-index: 105;
+            }
+
+            .range_time .irs-bar {
+                z-index: 100;
+                top: 5px;
+                height: 2px;
+            }
+
+            .range_time .irs-shadow {
+                top: 8px;
+            }
+
+            .range_time .irs-slider {
+                top: -2px;
+                border: 1px solid #d6d9da;
+                background: #fff;
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+            }
+
+            .range_time .irs-line-left, .range_time .irs-line-right, .range_time .irs-line {
+                z-index: 100;
+            }
+
+        .range_time__route {
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .range_time__point_start {
+            z-index: 3;
+            position: relative;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 18px;
+        }
+
+        .range_time.is-hovered .range_time__point_start {
+            color: white;
+        }
+
+        .range_time__label_range {
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .range_time__min_time_departure, .range_time__max_time_departure {
+            z-index: 3;
+            position: relative;
+        }
+
+        .range_time.is-hovered .range_time__min_time_departure, .range_time.is-hovered .range_time__max_time_departure {
+            color: white;
+        }
+
+        .range_time__graph {
+            width: 270px;
+            height: 170px;
+            display: none;
+            z-index: 1;
+            opacity: 1;
+            background-color: #052640;
+            color: #8dacc5;
+            padding-right: 5%;
+            position: absolute;
+            border-radius: 5px;
+            padding-top: 10px;
+            top: -99px;
+            bottom: 0;
+            padding-bottom: 68px;
+            left: -15px;
+            right: 0;
+            z-index: -1;
+            opacity: 0;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            will-change: opacity;
+            pointer-events: none;
+        }
+
+        .range_time.is-hovered .range_time__graph {
+            display: block;
+            -webkit-transform: translateY(0);
+            -o-transform: translateY(0);
+            transform: translateY(0);
+            z-index: 1;
+            opacity: 1;
+            top: -75px;
+            left: 5px;
+        }
+
+            .range_time.is-hovered .range_time__graph .irs-line-mid {
+                background-color: red;
+                z-index: 150;
+            }
+
+        .range_time__graph_wrap {
+            display: -webkit-flex;
+            display: -ms-flexbox;
+            display: flex;
+            overflow: hidden;
+            padding-top: 15px;
+        }
+
+        .range_time__graph_axis-x {
+            left: 5%;
+            height: 72px;
+            position: relative;
+        }
+
+        .range_time__axis-y {
+            left: 5%;
+            height: 72px;
+            position: relative;
+            font-size: .625rem;
+            width: 23%;
+            text-align: right;
+            margin-right: 2%;
+        }
+
+        .range_time__highlighted {
+            fill: rgba(0, 172, 222, 0.3);
+            height: 100%;
+        }
+
+        .range_time__highlighted-border {
+            stroke: #00acde;
+            stroke-width: 1px;
+        }
+
+        .range_time__y-item {
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 18px;
+            color: #8dacc5;
+            position: absolute;
+            -webkit-transform: translateY(-50%);
+            -o-transform: translateY(-50%);
+            transform: translateY(-50%);
+        }
+
+            .range_time__y-item:after {
+                content: "";
+                display: block;
+                position: absolute;
+                height: 1px;
+                width: 240px;
+                left: 125%;
+                border-bottom: 1px dashed #8dacc5;
+                top: 8px;
+                opacity: .3;
+            }
+
+        .range_time__axis-x {
+            position: relative;
+            z-index: 1;
+            width: 77%;
+            height: 72px;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            overflow: hidden;
+        }
+
+        .range_time__col {
+            fill: #d1e4ff;
+        }
+
+        .typeahead-country .twitter-typeahead, .typeahead-country .tt-hint, .typeahead-country .tt-input, .typeahead-country .tt-menu {
+            width: 100%;
+        }
+
+        .typeahead-country .tt-suggestion {
+            padding: 7px 5px 7px 55px;
+            color: #000 !important;
+            background-color: #fff;
+            position: relative;
+            border-bottom: 1px solid #7557b6;
+        }
+
+            .typeahead-country .tt-suggestion:last-child {
+                border-bottom: none;
+            }
+
+        .typeahead-country .empty-message {
+            padding: 7px 5px;
+            color: #000 !important;
+            background-color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .typeahead-country .tt-menu {
+            border: 1px solid #7557b6;
+            box-sizing: content-box;
+            left: -1px !important;
+        }
+
+        .typeahead-country .twitter-typeahead {
+            width: 100% !important;
+        }
+
+            .typeahead-country .twitter-typeahead .typeahead-inner .item-flag {
+                width: 40px;
+                height: 24px;
+                position: absolute;
+                left: 5px;
+                top: 3px;
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                border-radius: 5px;
+                border: 1px solid #9E9E9E;
+            }
+
+            .typeahead-country .twitter-typeahead .typeahead-inner .item-body {
+                width: 100%;
+                display: flex;
+                justify-content: flex-start;
+            }
+
+                .typeahead-country .twitter-typeahead .typeahead-inner .item-body .item.city {
+                    font-weight: 700;
+                    margin-right: 10px;
+                }
+
+                .typeahead-country .twitter-typeahead .typeahead-inner .item-body .item.country {
+                    font-weight: 700;
+                    color: #9E9E9E;
+                    margin-right: 10px;
+                }
+
+                .typeahead-country .twitter-typeahead .typeahead-inner .item-body .item.code {
+                    font-weight: 700;
+                }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="row">
+            <div class="col-md-4">
+                <jv3-pax-selector>
+                    <input type="text" class="form-control" placeholder="Введите пассажиров" />
+                    <div class="dropdown_passengers_plus_minus" style="display: none;">
+                        <div class="clearfix m--margin-top-10">
+                            <span class="align-middle">Взрослые</span>
+                            <div class="pull-right">
+                                <div class="input-group m-input-plus-minus">
+                                    <span class="input-group-addon">
+                                        <span class="fa fa-minus"></span>
+                                    </span>
+                                    <input type="text" class="form-control" value="1" aria-describedby="basic-addon1" readonly="">
+                                    <span class="input-group-addon">
+                                        <span class="fa fa-plus"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix m--margin-top-10">
+                            <span class="align-middle">Дети до 12 лет</span>
+                            <div class="pull-right">
+                                <div class="input-group m-input-plus-minus">
+                                    <span class="input-group-addon">
+                                        <span class="fa fa-minus"></span>
+                                    </span>
+                                    <input type="text" class="form-control" value="0" aria-describedby="basic-addon1" readonly="">
+                                    <span class="input-group-addon">
+                                        <span class="fa fa-plus"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix m--margin-top-10">
+                            <div class="pull-left">
+                                <span class="align-middle">Дети до 2 лет</span>
+                                <span class="align-middle additional">(без места)</span>
+                            </div>
+                            <div class="pull-right">
+                                <div class="input-group m-input-plus-minus">
+                                    <span class="input-group-addon">
+                                        <span class="fa fa-minus"></span>
+                                    </span>
+                                    <input type="text" class="form-control" value="0" aria-describedby="basic-addon1" readonly="">
+                                    <span class="input-group-addon">
+                                        <span class="fa fa-plus"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <label class="m-checkbox">
+                            <input type="checkbox">Бизнес класс<span></span>
+                        </label>
+                    </div>
+                </jv3-pax-selector>
+            </div>
+        </div>
+    </div>
+    <script>
+
+        Vue.component("jv3PaxSelector",
+            {
+                props: {
+                    adults: { type: Number },
+                    children: { type: Number },
+                    infants: { type: Number }
+                },
+                watch: {
+                    
+                },
+                computed: {
+                   
+                },
+                data: function () {
+                    
+                },
+                mounted: function () {
+                    let $input = $(this.$el).find("input[type='text']");
+                    let templateHtml = $(this.$el).find(".item-template")[0].outerHTML;
+                    let component = this;
+
+                    $input.autocomplete({
+                        selectFirst: true,
+                        source: function (request, response) {
+                            let citiesText = $(".cities-list").text().trim().split('\n');
+                            let cities = $.map(citiesText, function (x, i) { return { label: x.trim(), value: i } });
+                            let filtered = $.grep(cities,
+                                x => x.label.toLowerCase().startsWith(request.term.toLowerCase())).slice(0, 10);
+
+                            component.isLoading = true;
+                            setTimeout(function () {
+                                response(filtered);
+                                component.isLoading = false;
+                            },
+                                1000);
+                        },
+                        minLength: 2,
+                        select: function (event, ui) {
+                            event.preventDefault();
+                            $input.val(ui.item.label);
+                            component.$emit("update:selectedValue", ui.item.label);
+                            component.$emit("update:selectedId", ui.item.value);
+                        },
+                        focus: function (event, ui) {
+                            event.preventDefault();
+                            $input.val(ui.item.label);
+                        }
+                    }).autocomplete("instance")._renderItem = function (ul, item) {
+                        let $template = $(templateHtml);
+                        $template.find(".name").text(item.label);
+                        return $template.appendTo(ul);
+                    };
+                },
+                methods: {
+                    keypress: function (event) {
+                        if (event.which == 13) {
+                            $(this.$el).find("input[type='text']").data().uiAutocomplete.menu.element.children().first().click();
+                        }
+                    }
+                }
+            });
+
+
+        window.currentModel = new Vue({
+            el: '#app',
+            data: {
+                url: "www.google.com",
+                selectedValue: null,
+                selectedId: null
+            },
+            methods: {
+            }
+        });
+    </script>
+</body>
+</html>

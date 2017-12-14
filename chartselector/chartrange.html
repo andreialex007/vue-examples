@@ -1,0 +1,430 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Pax selector test</title>
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-vue@1.3.0/dist/bootstrap-vue.css" />
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.0.0-beta.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="jquery-ui.min.css" />
+    <link rel="stylesheet" href="jq-ui-bootstrap.css" />
+    <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="c3.min.css" />
+    <link rel="stylesheet" href="avia.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.9/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+    <script src="https://unpkg.com/babel-polyfill@6.26.0/dist/polyfill.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.3/moment.min.js"></script>
+
+    <script src="typeahead-and-mbs.js"></script>
+    <script>
+        mobiscroll.settings = {
+            theme: 'ios'
+        };
+    </script>
+    <script src="jquery-ui.min.js"></script>
+    <script src="d3.v3.min.js"></script>
+    <script src="c3.min.js"></script>
+    <style>
+        #chart > svg {
+            background-color: #052640;
+        }
+
+        body {
+            background: #052640;
+        }
+
+        .c3-axis-y .tick {
+            fill: #d1e4ff;
+            font-weight: bold;
+        }
+
+        .tick line, .domain {
+            display: none;
+        }
+
+        .chart-wrapper {
+            position: relative;
+        }
+
+        .range-overlay {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            background-color: #97b1c685;
+            z-index: 2;
+            bottom: 0px;
+            left: 60px;
+        }
+
+        .flights-list-container {
+            height: 701px;
+            overflow-y: auto
+        }
+
+        .chart-example-area {
+            padding-left: 42px;
+        }
+
+        .flights-example-area {
+            padding-top: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="row">
+            <div class="col-md-4 chart-example-area">
+                <i class='fa fa-rub'></i>
+
+                <h2 class="text-white">
+                    <i class="fa fa-bar-chart" aria-hidden="true"></i>
+                    Chart example
+                </h2>
+                <jv3-chart-range v-bind:items.sync="items"
+                                 v-bind:selected-items.sync="selectedItems"
+                                 inline-template>
+                    <div class="chart-wrapper">
+                        <div class="range-overlay"></div>
+                        <div class="chart"></div>
+                        <jv3-range inline-template
+                                   v-bind:start.sync="slider.start"
+                                   v-bind:end.sync="slider.end">
+                            <label class="range_time__mbsc-range no-padding">
+                                <input type="range" value="0" min="0" max="100" />
+                                <input type="range" value="100" min="0" max="100" />
+                            </label>
+                        </jv3-range>
+                    </div>
+                </jv3-chart-range>
+
+                <br />
+                <br />
+                <br />
+
+
+
+                <span v-on:click="regenerateData" class="btn btn-primary"><i class="fa fa-cubes" aria-hidden="true"></i> Regenerate data</span>
+
+                <br />
+                <br />
+                <br />
+
+                <!-- <h2 class="text-white">Range example</h2>
+                <jv3-range inline-template
+                           v-bind:start.sync="start"
+                           v-bind:end.sync="end">
+                    <label class="range_time__mbsc-range no-padding">
+                        <input type="range" value="0" min="0" max="100" />
+                        <input type="range" value="100" min="0" max="100" />
+                    </label>
+                </jv3-range>
+                <div style="color: white;">
+                    <br />
+                    <strong>start: <input type="number" v-bind:min="0" v-bind:max="100" v-model="start" class="form-control" /></strong>
+                    <br />
+                    <strong>end: <input type="number" v-bind:min="0" v-bind:max="100" v-model="end" class="form-control" /></strong>
+                </div> -->
+
+            </div>
+            <div class="col-md-4 flights-example-area">
+                <h2 class="text-white">
+                    <i class="fa fa-plane" aria-hidden="true"></i>
+                    Flights list (<strong>{{ selectedItemsSorted.length }}</strong>)
+                </h2>
+                <div class="flights-list-container">
+                    <ul class="list-group">
+                        <template v-for="item in selectedItemsSorted">
+                            <li class="list-group-item">
+                                <span>{{ item.date }}</span>
+                                <strong class="pull-right">{{ item.price }} Rub</strong>
+                            </li>
+                        </template>
+
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script>
+        // ReSharper disable UseOfImplicitGlobalInFunctionScope
+
+        Vue.component("jv3Range",
+            {
+                props: {
+                    start: { validator: function (x) { return parseInt(x) == (x + ""); } }, //здесь придется без указания типа не - потому то не могу понять причину ошибки
+                    end: { validator: function (x) { return parseInt(x) == (x + ""); } }
+                },
+                watch: {
+                    start: function (newVal) {
+                        $(this.$el).find("input:first").val(newVal);
+                        if (this.isChangeByUser == false)
+                            this.refresh();
+                    },
+                    end: function (newVal) {
+                        $(this.$el).find("input:last").val(newVal);
+                        if (this.isChangeByUser == false)
+                            this.refresh();
+                    }
+
+                },
+                computed: {
+
+                },
+                data: function () {
+                    return {
+                        isChangeByUser: false //необходим для исправления бага рефреша мобискрола при перетягивании ползунка
+                    }
+                },
+                mounted: function () {
+                    let component = this;
+                    $(this.$el).mobiscroll().form({ theme: 'ios' });
+                    $(this.$el).find("input:first").on("change", function () { component.$emit("update:start", parseInt(this.value)); });
+                    $(this.$el).find("input:last").on("change", function () { component.$emit("update:end", parseInt(this.value)); });
+                    $(this.$el).find(".mbsc-slider-handle").on("mousedown", function (event) { component.isChangeByUser = true; });
+                    $(document).on("mouseup", function () { component.isChangeByUser = false; });
+
+                },
+                methods: {
+                    refresh: function () {
+                        $('.range_time__mbsc-range').mobiscroll('refresh');
+                    }
+                }
+            });
+
+        Vue.component("jv3ChartRange",
+            {
+                props: {
+                    items: {
+                        validate: function (value) {
+                            if (!Array.isArray(value))
+                                return false;
+                            if (value.length >= 1) {
+                                let element = value[0];
+                                if (typeof element["price"] === "undefined")
+                                    return false;
+                                if (typeof element["date"] === "undefined")
+                                    return false;
+                                if (!moment(element.date, "DD.MM.YYYY HH:mm").isValid())
+                                    return false;
+                            }
+                            return true;
+                        }
+                    },
+                    selectedItems: {},
+                    minPrice: {},
+                    maxPrice: {}
+                },
+                watch: {
+                    items: function () {
+                        this.initChart();
+                    },
+                    'slider.start': function (newVal) {
+                        let onePercentage = this.overlayInitialWidth / 100;
+                        let margin = newVal * onePercentage;
+                        this.marginLeft = margin;
+                        this.redrawOverlay(this);
+                        this.calculateSelectedItems();
+                    },
+                    'slider.end': function (newVal) {
+                        let onePercentage = (this.overlayInitialWidth) / 100;
+                        let margin = (100 - newVal) * onePercentage;
+                        this.marginRight = margin;
+                        this.redrawOverlay(this);
+                        this.calculateSelectedItems();
+                    }
+                },
+                computed: {
+                },
+                data: function () {
+                    return {
+                        chart: null,
+                        overlayInitialWidth: 0,
+                        overlayInitialLeftOffset: 0,
+                        marginLeft: 0,
+                        marginRight: 0,
+                        slider: {
+                            start: 0,
+                            end: 100
+                        }
+                    }
+                },
+                mounted: function () {
+                    this.initChart();
+                },
+                methods: {
+                    redrawOverlay: function (component) {
+
+                        let chartAreaOffset = $(component.$el).find(".c3-event-rects").offset();
+                        let chartOffset = $(component.$el).offset();
+                        component.overlayInitialLeftOffset = chartAreaOffset.left - chartOffset.left;
+                        component.overlayInitialWidth = $(component.$el).find(".c3-event-rects")[0]
+                            .getBoundingClientRect().width;
+                        $(component.$el).find(".range-overlay").css({
+                            left: (component.overlayInitialLeftOffset + component.marginLeft) + "px",
+                            right: (0 + component.marginRight) + "px"
+                        });
+
+                    },
+                    calculateSelectedItems: function () {
+                        let start = this.slider.start;
+                        let end = this.slider.end;
+
+                        let chartOffsest = $(".c3-event-rects").offset();
+                        let barsOffset = $(".c3-chart-bars:first").offset();
+                        let rightShiftPx = barsOffset.left - chartOffsest.left;
+                        let chartWidth = $(".c3-event-rects")[0].getBoundingClientRect().width;
+                        let shiftPercentage = (rightShiftPx * 100) / chartWidth;
+                        let barsPercentage = 100 - (shiftPercentage * 2);
+
+                        let minItem = this.items.reduce(function (prev, curr) {
+                            return moment(prev.date, "DD.MM.YYYY HH:mm").unix() <
+                                moment(curr.date, "DD.MM.YYYY HH:mm").unix()
+                                ? prev
+                                : curr;
+                        });
+                        let maxItem = this.items.reduce(function (prev, curr) {
+                            return moment(prev.date, "DD.MM.YYYY HH:mm").unix() >=
+                                moment(curr.date, "DD.MM.YYYY HH:mm").unix()
+                                ? prev
+                                : curr;
+                        });
+                        let minUnix = moment(minItem.date, "DD.MM.YYYY HH:mm").unix();
+                        let maxUnix = moment(maxItem.date, "DD.MM.YYYY HH:mm").unix();
+                        let wholeRange = maxUnix - minUnix;
+                        let onePercentRange = wholeRange / barsPercentage;
+                        let leftUnixChunk = shiftPercentage * onePercentRange;
+                        let startUnix = minUnix - leftUnixChunk;
+                        let min = startUnix + (start * onePercentRange);
+                        let max = startUnix + ((end) * onePercentRange);
+                        let selectedItems = $.grep(this.items,
+                            (x) =>
+                                moment(x.date, "DD.MM.YYYY HH:mm").unix() >= min &&
+                                moment(x.date, "DD.MM.YYYY HH:mm").unix() <= max);
+
+                        this.$emit("update:selectedItems", selectedItems);
+
+                        return selectedItems;
+                    },
+                    initChart() {
+                        $(".chart").replaceWith($('<div />', { "class": 'chart' }));
+
+                        let component = this;
+                        var options = {
+                            data: {
+                                xs: {
+                                    'x': 'y'
+                                },
+                                type: 'bar',
+                                colors: {
+                                    x: '#d1e4ff',
+                                    y: '#d1e4ff'
+                                }
+                            },
+                            grid: {
+                                y: {
+                                    show: true
+                                }
+                            },
+                            bar: {
+                                width: 2
+                            },
+                            size: {
+                                width: 264,
+                                height: 72
+                            },
+                            legend: {
+                                show: false
+                            },
+                            tooltip: {
+                                show: false
+                            },
+                            axis: {
+                                y: {
+                                    tick: {
+                                        count: 3,
+                                        format: d3.format(",.f")
+                                    },
+                                    padding: {
+                                        top: 0,
+                                        bottom: 100
+                                    }
+                                },
+                                x: {
+                                    show: false
+                                }
+                            }
+                        }
+
+                        let xCol = ['x'].concat($.map(this.items, (x) => x.price));
+                        let yCol = ['y'].concat($.map(this.items, (x) => moment(x.date, "DD.MM.YYYY HH:mm").unix()));
+
+                        let onRendered = function () {
+                            $(".c3-axis-y .tick:first").hide();
+                            $(component.$el).width($(component.$el).find("svg:first").attr("width"));
+                            $(component.$el).height($(component.$el).find("svg:first").attr("height"));
+                            component.redrawOverlay(component);
+                        }
+                        options.data.columns = [xCol, yCol];
+                        options.bindto = $(this.$el).find(".chart")[0];
+                        options.onrendered = onRendered;
+                        this.chart = c3.generate(options);
+                        this.calculateSelectedItems();
+                    }
+                }
+            });
+
+        function getRandomInt(max) {
+            return Math.floor(Math.random() * max);
+        }
+        function randomDate(start, end) {
+            return moment(new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))).format("DD.MM.YYYY HH:mm");
+        }
+
+        function getRandomItems() {
+            var length = 10; // getRandomInt(50);
+            var array = [];
+            for (let i = 0; i < length; i++) {
+                let date = randomDate(new Date(2018, 0, 1, 0), new Date(2018, 0, 1, 23));
+                let price = getRandomInt(50000);
+                array.push({ date, price });
+            }
+            return array;
+        }
+
+        window.currentModel = new Vue({
+            el: '#app',
+            data: {
+                url: "www.google.com",
+                selectedValue: null,
+                selectedId: null,
+                start: 0,
+                end: 100,
+                items: getRandomItems(),
+                selectedItems: []
+            },
+            computed: {
+                selectedItemsSorted: function () {
+                    return this.selectedItems.sort(function (a, b) {
+                        return moment(a.date, "DD.MM.YYYY HH:mm").unix() - moment(b.date, "DD.MM.YYYY HH:mm").unix();
+                    });
+                }
+            },
+            methods: {
+                regenerateData: function () {
+                    this.items = getRandomItems();
+                },
+                onItemsSelected: function () {
+
+                }
+            },
+            watch: {
+                selectedItems: function () {
+                    console.log("selected items changed");
+                }
+            }
+        });
+    </script>
+</body>
+</html>

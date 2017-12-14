@@ -1,0 +1,281 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Vue Test</title>
+    <link rel="stylesheet" href="https://sso.corteos.ru/various/mbs.css" />
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-vue@1.3.0/dist/bootstrap-vue.css" />
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.0.0-beta.2/dist/css/bootstrap.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.9/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+    <script src="https://sso.corteos.ru/various/mbs.js"></script>
+    <script src="https://unpkg.com/babel-polyfill@6.26.0/dist/polyfill.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.3/moment.min.js"></script>
+    <style>
+        .date-popover {
+            position: absolute;
+            background-color: white;
+            border: 1px solid lightgray;
+            border-radius: 7px;
+            padding: 2px;
+        }
+
+        .popup-date-picker {
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="row">
+            <div class="col-md-4">
+                <popup-date-picker v-bind:model="dateDepart"
+                                   date-format="DD.MM.YYYY"
+                                   default-placeholder="Выберите вылета"
+                                   inline-template>
+                    <div class="popup-date-picker"
+                         tabindex="0"
+                         v-on:focus="focus"
+                         v-on:blur="blur">
+                        <input id="selectorid0"
+                               v-model="formattedDate"
+                               type="text"
+                               v-on:focus="focus"
+                               v-on:blur="blur"
+                               placeholder="Дата отправления" />
+                        <div class="date-popover"
+                             target="selectorid0"
+                             v-bind:placeholder="placeholder"
+                             v-show='popoverShow'>
+                            <label>
+                                <input type="checkbox" v-on:focus="focus" v-on:blur="blur" v-model="isHoursChecked" />
+                                Время вылета
+                            </label>
+                            <template v-if="isHoursChecked">
+                                <select v-model="model.hours" v-on:focus="focus" v-on:blur="blur" class="custom-select mb-2 mr-sm-2 mb-sm-0">
+                                    <option selected disabled value="">выберите</option>
+                                    <option>12:00</option>
+                                    <option>13:00</option>
+                                    <option>14:00</option>
+                                </select>
+                            </template>
+                            <date-picker v-bind:value.sync="model.date"
+                                         mbs-date-format='dd/mm/yyyy'
+                                         mbs-display='inline'
+                                         v-bind:mbs-min="minDate"
+                                         v-bind:mbs-max="maxDate"
+                                         inline-template>
+                                <div class="mobiscroll-target-calendar"></div>
+                            </date-picker>
+                        </div>
+                    </div>
+                </popup-date-picker>
+            </div>
+            <div class="col-md-4">
+                <popup-date-picker v-bind:model="dateReturn"
+                                   v-bind:min-date="dateDepart.date"
+                                   date-format="DD.MM.YYYY"
+                                   default-placeholder="Выберите дату прилета"
+                                   rejected-placeholder="Не выбрано"
+                                   inline-template>
+                    <div class="popup-date-picker"
+                         tabindex="0"
+                         v-on:focus="focus"
+                         v-on:blur="blur">
+                        <input id="selectorid1"
+                               v-model="formattedDate"
+                               v-on:focus="focus"
+                               v-on:blur="blur"
+                               v-bind:placeholder="placeholder"
+                               type="text" />
+
+                        <div class="date-popover"
+                             target="selectorid1"
+                             v-bind:placeholder="placeholder"
+                             v-show='popoverShow'>
+
+                            <button v-on:click="reject" v-on:focus="focus" v-on:blur="blur" class="btn btn-primary">
+                                обратный билет не нужен
+                            </button>
+                            <br />
+
+                            <label>
+                                <input type="checkbox" v-on:focus="focus" v-on:blur="blur" v-model="isHoursChecked" />
+                                Время вылета
+                            </label>
+                            <template v-if="isHoursChecked">
+                                <select v-model="model.hours" v-on:focus="focus" v-on:blur="blur" class="custom-select mb-2 mr-sm-2 mb-sm-0">
+                                    <option selected disabled value="">выберите</option>
+                                    <option>12:00</option>
+                                    <option>13:00</option>
+                                    <option>14:00</option>
+                                </select>
+                            </template>
+                            <date-picker v-bind:value.sync="model.date"
+                                         mbs-date-format='dd/mm/yyyy'
+                                         mbs-display='inline'
+                                         v-bind:mbs-min="minDate"
+                                         v-bind:mbs-max="maxDate"
+                                         inline-template>
+                                <div class="mobiscroll-target-calendar"></div>
+                            </date-picker>
+                        </div>
+                    </div>
+                </popup-date-picker>
+            </div>
+        </div>
+        <br />
+        <span class="btn btn-primary" v-on:click="setDepartureDate" >Установить дату вылета - сегодня</span>
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <b>MODEL DEPART: {{ dateDepart }}</b>
+        <br />
+        <b>MODEL RETURN: {{ dateReturn }}</b>
+
+    </div>
+    <script>
+        Vue.component('popupDatePicker', {
+            props: {
+                model: {
+                    type: Object,
+                    default: { date: null, hours: null }
+                },
+                defaultPlaceholder: { type: String },
+                rejectedPlaceholder: { type: String },
+                dateFormat: { type: String },
+                minDate: { type: Date },
+                maxDate: { type: Date }
+            },
+            data: function () {
+                return {
+                    isHoursChecked: false,
+                    popoverShow: false
+                };
+            },
+            methods: {
+                reject: function () {
+                    this.model.isDateRejectedByUser = true;
+                    this.model.date = null;
+                    this.popoverShow = false;
+                },
+                focus: function () {
+                    this.popoverShow = true;
+                },
+                blur: function () {
+                    this.popoverShow = false;
+                }
+            },
+            computed: {
+                formattedDate: {
+                    get: (x) => !!x.model.date ? moment(x.model.date).format(x.dateFormat) : ""
+                },
+                placeholder: (x) => !x.rejectedPlaceholder ? x.defaultPlaceholder : (x.model.isDateRejectedByUser ? x.rejectedPlaceholder : x.defaultPlaceholder)
+            },
+            watch: {
+                'model.date': function () {
+                    this.popoverShow = false;
+                },
+                'popoverShow': function (newVal) {
+                    //mobiscroll calendar bug fix
+                    if (newVal) {
+                        var that = this;
+                        setTimeout(function () {
+                            $(that.$vnode.elm).find(".mobiscroll-target-calendar").mobiscroll('position');
+                        }, 100);
+                    }
+
+                },
+                'minDate': function (date, oldVal) {
+                    if (!oldVal || this.minDate > this.model.date || !this.model.date)
+                        $(this.$vnode.elm).find(":input[type='text']").focus();
+                }
+            }
+        });
+
+
+        Vue.component('datePicker', {
+            props: {
+                value: { type: Date },
+                mbsTheme: { type: String, default: "ios" },
+                mbsDisplay: { type: String, default: "inline" },
+                mbsMin: { type: Date },
+                mbsMax: { type: Date }
+            },
+            mounted() {
+                $(this.$el).mobiscroll().calendar({
+                    defaultValue: this.value,
+                    theme: this.mbsTheme,
+                    display: this.mbsDisplay,
+                    min: this.mbsMin || new Date(),
+                    max: this.mbsMax || new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+                    months: 1,
+                    yearChange: false,
+                    onDayChange: (event, inst) => {
+                        this.$emit("update:value", event.date);
+                        console.log("update value");
+                    }
+                });
+            },
+            methods: {
+                setMinMax: (el, date, isMin) => {
+                    if (!date) return;
+                    $(el).mobiscroll('option', { [isMin ? "min" : "max"]: date });
+                }
+            },
+            watch: {
+                mbsMin: function (date) {
+                    this.setMinMax(this.$el, date, true);
+                },
+                mbsMax: function (date) {
+                    this.setMinMax(this.$el, date, false);
+                }
+            },
+            beforeDestroy() {
+                $(this.$el).mobiscroll('destroy');
+            }
+        });
+
+
+        window.currentModel = new Vue({
+            el: '#app',
+            data: {
+                dateDepart: {
+                    date: null,
+                    hours: ''
+                },
+                dateReturn: {
+                    date: null,
+                    hours: '',
+                    isDateRejectedByUser: false
+                }
+            },
+            methods: {
+                setDepartureDate: function () {
+                    this.dateDepart.date = new Date();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
